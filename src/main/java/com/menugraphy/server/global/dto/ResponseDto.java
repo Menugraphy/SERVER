@@ -15,6 +15,7 @@ public record ResponseDto<T>(
         String message,
         Object errors
 ) {
+
     public static <T> ResponseDto<T> success(final T data) {
         return new ResponseDto<>("success", data, null, null);
     }
@@ -39,6 +40,7 @@ public record ResponseDto<T>(
             String field,
             String message
     ) {
+
         // BindingResult에서 FieldError 목록을 ValidationError로 변환
         private static List<ValidationError> of(final BindingResult bindingResult) {
             return bindingResult.getFieldErrors().stream()

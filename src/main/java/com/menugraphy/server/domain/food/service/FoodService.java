@@ -7,7 +7,6 @@ import com.menugraphy.server.domain.food.model.entity.Category;
 import com.menugraphy.server.domain.food.model.entity.Type;
 import com.menugraphy.server.domain.food.repository.CategoryRepository;
 import com.menugraphy.server.domain.food.repository.TypeRepository;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,22 +21,23 @@ public class FoodService {
 
     @Transactional(readOnly = true)
     public CategoryListResponse fetchCategoryTypes() {
-        List<CategoryResponse> categoryList = new ArrayList<>();
+        // 모든 카테고리와 타입 가져오기
         List<Category> categories = categoryRepository.findAll();
+        List<Type> types = typeRepository.findAll();
 
-        for (Category category : categories) {
-            List<TypeResponse> typeList = new ArrayList<>();
-            List<Type> types = typeRepository.findAllByCategoryId(category.getId());
+        // Category와 관련된 Type을 매칭
+        List<CategoryResponse> categoryList = categories.stream()
+                .map(category -> {
+                    List<TypeResponse> typeList = types.stream()
+                            .filter(type -> type.getCategoryId() == category.getId()) // categoryId로 매칭
+                            .map(type -> TypeResponse.of(type.getId(), type.getName()))
+                            .toList();
 
-            for (Type type : types) {
-                typeList.add(new TypeResponse(type.getId(), type.getName()));
-            }
+                    return CategoryResponse.of(category.getId(), category.getName(), typeList);
+                })
+                .filter(categoryResponse -> !categoryResponse.typeList().isEmpty()) // 비어 있지 않은 카테고리만 추가
+                .toList();
 
-            if (!typeList.isEmpty()) {
-                categoryList.add(new CategoryResponse(category.getId(), category.getName(), typeList));
-            }
-        }
-
-        return new CategoryListResponse(categoryList);
+        return CategoryListResponse.of(categoryList);
     }
 }

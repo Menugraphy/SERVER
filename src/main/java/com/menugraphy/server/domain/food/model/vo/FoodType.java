@@ -4,4 +4,5 @@ public record FoodType(
         String categoryId,
         String typeId
 ) {
+
 }

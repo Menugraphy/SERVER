@@ -7,4 +7,12 @@ public record CategoryResponse(
         String name,
         List<TypeResponse> typeList
 ) {
+
+    public static CategoryResponse of(
+            final Long id,
+            final String name,
+            final List<TypeResponse> typeList
+    ) {
+        return new CategoryResponse(id, name, typeList);
+    }
 }
