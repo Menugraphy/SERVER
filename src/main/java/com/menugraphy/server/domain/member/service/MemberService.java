@@ -44,7 +44,7 @@ public class MemberService {
         throw new CustomException(ErrorType.INVALID_SOCIAL_TYPE_ERROR);
     }
 
-    private LoginResponse getTokenDto(final MemberInfoResponse memberInfoResponse) {
+    public LoginResponse getTokenDto(final MemberInfoResponse memberInfoResponse) {
         Member member;
 
         try {

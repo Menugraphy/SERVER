@@ -4,6 +4,7 @@ import com.menugraphy.server.domain.member.model.dto.LoginRequest;
 import com.menugraphy.server.domain.member.model.dto.LoginResponse;
 import com.menugraphy.server.domain.member.model.enums.SocialType;
 import com.menugraphy.server.domain.member.service.MemberService;
+import com.menugraphy.server.global.external.client.dto.MemberInfoResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,5 +27,14 @@ public class MemberController {
         SocialType socialType = SocialType.fromValue(loginRequest.socialType());
 
         return ResponseEntity.ok(memberService.createAccessToken(socialType, loginRequest.idToken()));
+    }
+
+    @PostMapping("/token")
+    public ResponseEntity<LoginResponse> getToken(
+            @Valid @RequestBody LoginRequest loginRequest
+    ) {
+        SocialType socialType = SocialType.fromValue(loginRequest.socialType());
+
+        return ResponseEntity.ok(memberService.getTokenDto(MemberInfoResponse.of(socialType, loginRequest.idToken())));
     }
 }
