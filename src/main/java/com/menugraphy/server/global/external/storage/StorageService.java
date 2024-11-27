@@ -48,7 +48,7 @@ public class StorageService {
         metadata.setContentType(file.getContentType());
 
         // S3에 파일 업로드
-        String key = "OCR_Before/" + fileName;
+        String key = "OCR_before/" + fileName;
 
         try {
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, file.getInputStream(), metadata)
@@ -59,7 +59,7 @@ public class StorageService {
         }
 
         String beforeUrl = amazonS3.getUrl(bucketName, key).toString();
-        String afterUrl = amazonS3.getUrl(bucketName, "OCR_After/" + fileName).toString();
+        String afterUrl = amazonS3.getUrl(bucketName, "OCR_after/" + fileName).toString();
 
         // 업로드된 파일의 URL 반환
         return MenuBoardImage.of(beforeUrl, afterUrl);

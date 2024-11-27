@@ -58,7 +58,7 @@ public class MenuService {
     ) {
         Member member = memberRepository.findMemberByIdOrThrow(principalHandler.getUserIdFromPrincipal());
         String fileName = member.getId() + "-" + imageRequest.image().getOriginalFilename();
-        String fileUrl = amazonS3.getUrl(bucketName, "OCR_After/" + fileName).toString();
+        String fileUrl = amazonS3.getUrl(bucketName, "OCR_after/" + fileName).toString();
 
         if (menuBoardRepository.existsByAfterImage(fileUrl)) {
             MenuBoard menuBoard = menuBoardRepository.findByAfterImageByIdOrThrow(fileUrl);
