@@ -27,8 +27,11 @@ public class MenuBoard extends BaseTimeEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "image", unique = true)
-    private String image;
+    @Column(name = "before_image", unique = true)
+    private String beforeImage;
+
+    @Column(name = "after_image", unique = true)
+    private String afterImage;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "menu_price_list", columnDefinition = "jsonb")
@@ -36,10 +39,12 @@ public class MenuBoard extends BaseTimeEntity {
 
     @Builder
     private MenuBoard(
-            final String image,
+            final String beforeImage,
+            final String afterImage,
             final List<MenuPrice> menuPriceList
     ) {
-        this.image = image;
+        this.beforeImage = beforeImage;
+        this.afterImage = afterImage;
         this.menuPriceList = menuPriceList;
     }
 }

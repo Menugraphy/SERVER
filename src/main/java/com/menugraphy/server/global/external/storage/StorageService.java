@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.menugraphy.server.domain.member.model.entity.Member;
 import com.menugraphy.server.domain.member.repository.MemberRepository;
+import com.menugraphy.server.domain.menu.model.vo.MenuBoardImage;
 import com.menugraphy.server.global.auth.PrincipalHandler;
 import com.menugraphy.server.global.exception.CustomException;
 import com.menugraphy.server.global.exception.ErrorType;
@@ -30,7 +31,7 @@ public class StorageService {
 
     private static final List<String> ALLOWED_FILE_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "heic");
 
-    public String uploadFile(MultipartFile file) {
+    public MenuBoardImage uploadFile(MultipartFile file) {
         Member member = memberRepository.findMemberByIdOrThrow(principalHandler.getUserIdFromPrincipal());
 
         // 파일 확장자 체크
@@ -57,8 +58,11 @@ public class StorageService {
             throw new CustomException(ErrorType.S3_UPLOAD_ERROR);
         }
 
+        String beforeUrl = amazonS3.getUrl(bucketName, key).toString();
+        String afterUrl = amazonS3.getUrl(bucketName, "OCR_After/" + fileName).toString();
+
         // 업로드된 파일의 URL 반환
-        return amazonS3.getUrl(bucketName, "OCR_After/" + fileName).toString();
+        return MenuBoardImage.of(beforeUrl, afterUrl);
     }
 
     private boolean isAllowedExtension(String fileName) {
