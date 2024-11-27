@@ -24,4 +24,11 @@ public class MenuController {
     ) {
         return ResponseEntity.ok(menuService.uploadImage(imageRequest));
     }
+
+    @PostMapping("/image-upload")
+    public ResponseEntity<Void> uploadImageForTest(
+            @Valid @ModelAttribute ImageRequest imageRequest
+    ) {
+        return ResponseEntity.ok().build();
+    }
 }

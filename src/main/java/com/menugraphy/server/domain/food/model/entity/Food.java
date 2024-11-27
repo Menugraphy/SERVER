@@ -1,6 +1,5 @@
 package com.menugraphy.server.domain.food.model.entity;
 
-import com.menugraphy.server.domain.food.model.vo.FoodType;
 import com.menugraphy.server.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,10 +31,10 @@ public class Food extends BaseTimeEntity {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "food_type_list", columnDefinition = "jsonb")
-    private List<FoodType> foodTypeList;
+    private List<Long> foodTypeList;
 
-    @Column(name = "likes")
-    private int likes;
+//    @Column(name = "likes")
+//    private int likes;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
@@ -50,15 +49,15 @@ public class Food extends BaseTimeEntity {
     @Builder
     private Food(
             final String image,
-            final List<FoodType> foodTypeList,
-            final int likes,
+            final List<Long> foodTypeList,
+//            final int likes,
             final String name,
             final String description,
             final List<Long> similarFoodList
     ) {
         this.image = image;
         this.foodTypeList = foodTypeList;
-        this.likes = likes;
+//        this.likes = likes;
         this.name = name;
         this.description = description;
         this.similarFoodList = similarFoodList;
