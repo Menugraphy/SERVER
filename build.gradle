@@ -59,6 +59,9 @@ dependencies {
     implementation 'com.google.api-client:google-api-client:2.7.0'
     implementation 'com.google.http-client:google-http-client-apache-v2:1.45.1'
     implementation 'com.google.http-client:google-http-client-gson:1.45.1'
+
+    // S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 tasks.named('test') {

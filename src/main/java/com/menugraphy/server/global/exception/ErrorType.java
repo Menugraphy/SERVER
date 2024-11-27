@@ -17,6 +17,7 @@ public enum ErrorType {
     INVALID_SOCIAL_TYPE_ERROR(HttpStatus.BAD_REQUEST, "40006", "잘못된 소셜 로그인 종류입니다."),
     EMPTY_PRINCIPAL_ERROR(HttpStatus.BAD_REQUEST, "40007", "Principal 객체가 없습니다. (null)"),
     INVALID_ID_TOKEN_ERROR(HttpStatus.BAD_REQUEST, "40008", "ID 토큰의 서명이 올바르지 않습니다."),
+    S3_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "40009", "S3 이미지 업로드에 실패했습니다."),
 
     EXPIRED_AUTHENTICATION_CODE(HttpStatus.UNAUTHORIZED, "40101", "인가 코드가 만료되었습니다."),
     UN_LOGIN_ERROR(HttpStatus.UNAUTHORIZED, "40102", "로그인 후 진행해주세요."),
