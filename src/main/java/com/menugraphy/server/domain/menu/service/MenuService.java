@@ -101,7 +101,7 @@ public class MenuService {
                     String priceInUsdFormatted = priceInUsd + " USD";
 
                     return MenuResponse.of(
-                            (long) (menuBoard.getMenuPriceList().indexOf(menuPrice) + 1),
+                            food.getId(),
                             food.getImage(),
                             food.getName(),
                             food.getDescription(),
