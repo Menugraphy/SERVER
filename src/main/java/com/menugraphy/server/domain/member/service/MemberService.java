@@ -1,8 +1,11 @@
 package com.menugraphy.server.domain.member.service;
 
+import com.menugraphy.server.domain.member.model.dto.AvoidanceListRequest;
 import com.menugraphy.server.domain.member.model.dto.LoginResponse;
+import com.menugraphy.server.domain.member.model.entity.FoodAvoidance;
 import com.menugraphy.server.domain.member.model.entity.Member;
 import com.menugraphy.server.domain.member.model.enums.SocialType;
+import com.menugraphy.server.domain.member.repository.FoodAvoidanceRepository;
 import com.menugraphy.server.domain.member.repository.MemberRepository;
 import com.menugraphy.server.global.auth.MemberAuthentication;
 import com.menugraphy.server.global.auth.PrincipalHandler;
@@ -11,6 +14,7 @@ import com.menugraphy.server.global.exception.CustomException;
 import com.menugraphy.server.global.exception.ErrorType;
 import com.menugraphy.server.global.external.client.dto.MemberInfoResponse;
 import com.menugraphy.server.global.external.client.service.GoogleSocialService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final FoodAvoidanceRepository foodAvoidanceRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PrincipalHandler principalHandler;
     private final GoogleSocialService googleSocialService;
@@ -82,5 +87,24 @@ public class MemberService {
         MemberAuthentication memberAuthentication = new MemberAuthentication(id, null, null);
 
         return LoginResponse.of(jwtTokenProvider.issueAccessToken(memberAuthentication));
+    }
+
+    @Transactional
+    public void saveAvoidedTypes(final AvoidanceListRequest avoidanceListRequest) {
+        if (avoidanceListRequest.avoidanceList() == null || avoidanceListRequest.avoidanceList().isEmpty()) {
+            return;
+        }
+
+        Member member = memberRepository.findMemberByIdOrThrow(principalHandler.getUserIdFromPrincipal());
+
+        List<FoodAvoidance> foodAvoidanceList = avoidanceListRequest.avoidanceList().stream()
+                .map(request -> FoodAvoidance.builder()
+                        .memberId(member.getId())
+                        .categoryId(request.categoryId())
+                        .typeId(request.typeId())
+                        .build())
+                .toList();
+
+        foodAvoidanceRepository.saveAll(foodAvoidanceList);
     }
 }

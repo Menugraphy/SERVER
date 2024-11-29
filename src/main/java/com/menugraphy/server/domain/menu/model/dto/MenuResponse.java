@@ -16,8 +16,9 @@ public record MenuResponse(
             final String name,
             final String description,
             final int price,
-            final String localizedPrice
+            final String localizedPrice,
+            final boolean isAvoidanceFood
     ) {
-        return new MenuResponse(id, image, name, description, price, localizedPrice, false);
+        return new MenuResponse(id, image, name, description, price, localizedPrice, isAvoidanceFood);
     }
 }

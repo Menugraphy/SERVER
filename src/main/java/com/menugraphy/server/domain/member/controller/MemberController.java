@@ -1,5 +1,6 @@
 package com.menugraphy.server.domain.member.controller;
 
+import com.menugraphy.server.domain.member.model.dto.AvoidanceListRequest;
 import com.menugraphy.server.domain.member.model.dto.LoginRequest;
 import com.menugraphy.server.domain.member.model.dto.LoginResponse;
 import com.menugraphy.server.domain.member.model.enums.SocialType;
@@ -36,5 +37,14 @@ public class MemberController {
         SocialType socialType = SocialType.fromValue(loginRequest.socialType());
 
         return ResponseEntity.ok(memberService.getTokenDto(MemberInfoResponse.of(socialType, loginRequest.idToken())));
+    }
+
+    @PostMapping("/avoided-types")
+    public ResponseEntity<Void> postAvoidanceList(
+            @Valid @RequestBody AvoidanceListRequest avoidanceList
+    ) {
+        memberService.saveAvoidedTypes(avoidanceList);
+
+        return ResponseEntity.ok().build();
     }
 }
