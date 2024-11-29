@@ -1,6 +1,9 @@
 package com.menugraphy.server.domain.member.service;
 
+import com.menugraphy.server.domain.food.repository.CategoryRepository;
+import com.menugraphy.server.domain.food.repository.TypeRepository;
 import com.menugraphy.server.domain.member.model.dto.AvoidanceListRequest;
+import com.menugraphy.server.domain.member.model.dto.AvoidedTypeRequest;
 import com.menugraphy.server.domain.member.model.dto.LoginResponse;
 import com.menugraphy.server.domain.member.model.entity.FoodAvoidance;
 import com.menugraphy.server.domain.member.model.entity.Member;
@@ -24,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberService {
 
+    private final CategoryRepository categoryRepository;
+    private final TypeRepository typeRepository;
     private final MemberRepository memberRepository;
     private final FoodAvoidanceRepository foodAvoidanceRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -96,6 +101,7 @@ public class MemberService {
         }
 
         Member member = memberRepository.findMemberByIdOrThrow(principalHandler.getUserIdFromPrincipal());
+        validateAvoidanceList(avoidanceListRequest);
 
         List<FoodAvoidance> foodAvoidanceList = avoidanceListRequest.avoidanceList().stream()
                 .map(request -> FoodAvoidance.builder()
@@ -106,5 +112,16 @@ public class MemberService {
                 .toList();
 
         foodAvoidanceRepository.saveAll(foodAvoidanceList);
+    }
+
+    private void validateAvoidanceList(AvoidanceListRequest avoidanceListRequest) {
+        for (AvoidedTypeRequest avoidedTypeRequest : avoidanceListRequest.avoidanceList()) {
+            if (!categoryRepository.existsById(avoidedTypeRequest.categoryId())) {
+                throw new CustomException(ErrorType.NOT_FOUND_CATEGORY_ERROR);
+            }
+            if (!typeRepository.existsById(avoidedTypeRequest.typeId())) {
+                throw new CustomException(ErrorType.NOT_FOUND_TYPE_ERROR);
+            }
+        }
     }
 }
