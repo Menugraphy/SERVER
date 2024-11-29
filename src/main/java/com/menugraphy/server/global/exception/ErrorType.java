@@ -9,18 +9,20 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ErrorType {
 
-    INVALID_REQUEST_ERROR(HttpStatus.BAD_REQUEST, "40001", "잘못된 요청입니다."),
-    TYPE_MISMATCH_ERROR(HttpStatus.BAD_REQUEST, "40002", "잘못된 값이 입력되었습니다."),
-    INVALID_REQUEST_BODY_ERROR(HttpStatus.BAD_REQUEST, "40003", "잘못된 Request Body입니다. 요청 형식 또는 필드를 확인하세요."),
-    DATA_INTEGRITY_VIOLATION_ERROR(HttpStatus.BAD_REQUEST, "40004", "데이터 무결성 제약 조건을 위반했습니다."),
-    BEARER_LOST_ERROR(HttpStatus.BAD_REQUEST, "40005", "요청한 토큰이 Bearer 토큰이 아닙니다."),
-    INVALID_SOCIAL_TYPE_ERROR(HttpStatus.BAD_REQUEST, "40006", "잘못된 소셜 로그인 종류입니다."),
-    EMPTY_PRINCIPAL_ERROR(HttpStatus.BAD_REQUEST, "40007", "Principal 객체가 없습니다. (null)"),
-    INVALID_ID_TOKEN_ERROR(HttpStatus.BAD_REQUEST, "40008", "ID 토큰의 서명이 올바르지 않습니다."),
-    S3_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "40009", "S3 이미지 업로드에 실패했습니다."),
+    INVALID_PATH_ERROR(HttpStatus.BAD_REQUEST, "40001", "요청 경로의 변수 값이 허용된 형식과 다릅니다."),
+    INVALID_FIELD_ERROR(HttpStatus.BAD_REQUEST, "40002", "요청 본문의 필드 값이 허용된 형식과 다릅니다."),
+    NO_REQUEST_PARAMETER_ERROR(HttpStatus.BAD_REQUEST, "40003", "요청에 필요한 파라미터가 존재하지 않습니다."),
+    NO_REQUEST_HEADER_ERROR(HttpStatus.BAD_REQUEST, "40004", "요청에 필요한 헤더가 존재하지 않습니다."),
+    TYPE_MISMATCH_ERROR(HttpStatus.BAD_REQUEST, "40005", "잘못된 값이 입력되었습니다."),
+    INVALID_REQUEST_BODY_ERROR(HttpStatus.BAD_REQUEST, "40006", "잘못된 Request Body입니다. 요청 형식 또는 필드를 확인하세요."),
+    DATA_INTEGRITY_VIOLATION_ERROR(HttpStatus.BAD_REQUEST, "40007", "데이터 무결성 제약 조건을 위반했습니다."),
+    BEARER_LOST_ERROR(HttpStatus.BAD_REQUEST, "40008", "요청한 토큰이 Bearer 토큰이 아닙니다."),
+    INVALID_SOCIAL_TYPE_ERROR(HttpStatus.BAD_REQUEST, "40009", "잘못된 소셜 로그인 종류입니다."),
+    EMPTY_PRINCIPAL_ERROR(HttpStatus.BAD_REQUEST, "40010", "Principal 객체가 없습니다. (null)"),
+    INVALID_ID_TOKEN_ERROR(HttpStatus.BAD_REQUEST, "40011", "ID 토큰의 서명이 올바르지 않습니다."),
+    S3_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "40012", "S3 이미지 업로드에 실패했습니다."),
 
-    EXPIRED_AUTHENTICATION_CODE(HttpStatus.UNAUTHORIZED, "40101", "인가 코드가 만료되었습니다."),
-    UN_LOGIN_ERROR(HttpStatus.UNAUTHORIZED, "40102", "로그인 후 진행해주세요."),
+    UN_LOGIN_ERROR(HttpStatus.UNAUTHORIZED, "40101", "로그인 후 진행해주세요."),
 
     NOT_FOUND_MEMBER_ERROR(HttpStatus.NOT_FOUND, "40401", "존재하지 않는 회원입니다."),
     NOT_FOUND_MENUBOARD_ERROR(HttpStatus.NOT_FOUND, "40402", "존재하지 않는 메뉴판입니다."),

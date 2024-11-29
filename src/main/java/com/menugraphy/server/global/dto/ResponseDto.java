@@ -25,7 +25,7 @@ public record ResponseDto<T>(
     }
 
     public static <T> ResponseDto<T> fail(final ErrorType errorType, final String errorDetail) {
-        return new ResponseDto<>(errorType.getCode(), null, errorType.getMessage() + " (" + errorDetail + ")", null);
+        return new ResponseDto<>(errorType.getCode(), null, errorType.getMessage() + "(" + errorDetail + ")", null);
     }
 
     public static <T> ResponseDto<T> fail(final ErrorType errorType, final BindingResult bindingResult) {
@@ -36,23 +36,28 @@ public record ResponseDto<T>(
         return new ResponseDto<>(errorType.getCode(), null, errorType.getMessage(), ValidationError.of(violations));
     }
 
+    @JsonInclude(Include.NON_NULL)
     private record ValidationError(
+            String path,
             String field,
             String message
     ) {
 
-        // BindingResult에서 FieldError 목록을 ValidationError로 변환
-        private static List<ValidationError> of(final BindingResult bindingResult) {
-            return bindingResult.getFieldErrors().stream()
-                    .map(error -> new ValidationError(error.getField(), error.getDefaultMessage()))
-                    .toList();
-        }
-
         // ConstraintViolation 목록을 ValidationError로 변환
         private static List<ValidationError> of(final Set<ConstraintViolation<?>> violations) {
             return violations.stream()
-                    .map(violation -> new ValidationError(violation.getPropertyPath().toString(),
-                            violation.getMessage()))
+                    .map(violation -> new ValidationError(
+                            violation.getPropertyPath().toString(),
+                            null,
+                            violation.getMessage()
+                    ))
+                    .toList();
+        }
+
+        // BindingResult에서 FieldError 목록을 ValidationError로 변환
+        private static List<ValidationError> of(final BindingResult bindingResult) {
+            return bindingResult.getFieldErrors().stream()
+                    .map(error -> new ValidationError(null, error.getField(), error.getDefaultMessage()))
                     .toList();
         }
     }

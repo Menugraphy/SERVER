@@ -1,6 +1,5 @@
 package com.menugraphy.server.global.exception;
 
-
 import lombok.Getter;
 
 @Getter

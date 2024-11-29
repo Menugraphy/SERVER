@@ -6,6 +6,7 @@ import com.menugraphy.server.domain.food.model.entity.Type;
 import com.menugraphy.server.domain.food.repository.FoodRepository;
 import com.menugraphy.server.domain.food.repository.TypeRepository;
 import com.menugraphy.server.domain.member.model.entity.Member;
+import com.menugraphy.server.domain.member.model.enums.ScriptType;
 import com.menugraphy.server.domain.member.repository.MemberRepository;
 import com.menugraphy.server.domain.menu.model.dto.ImageRequest;
 import com.menugraphy.server.domain.menu.model.dto.ImageResponse;
@@ -145,31 +146,44 @@ public class MenuService {
     }
 
     @Transactional(readOnly = true)
-    public OrderScriptResponse fetchOrderScript(
-            OrderScriptListRequest orderScriptListRequest
-    ) {
-        String korean = "";
-        String romanized = "";
-        String translatedText = "";
+    public OrderScriptResponse fetchOrderScript(OrderScriptListRequest orderScriptListRequest) {
+        String korean = buildScript(orderScriptListRequest, ScriptType.KOREAN);
+        String romanized = buildScript(orderScriptListRequest, ScriptType.ROMANIZED);
+        String translatedText = buildScript(orderScriptListRequest, ScriptType.TRANSLATED);
+
+        return OrderScriptResponse.of(korean, romanized, translatedText);
+    }
+
+    private String buildScript(OrderScriptListRequest orderScriptListRequest, ScriptType type) {
+        StringBuilder script = new StringBuilder();
 
         for (int i = 0; i < orderScriptListRequest.menuOrderList().size(); i++) {
             OrderScriptRequest orderScriptRequest = orderScriptListRequest.menuOrderList().get(i);
-            korean += orderScriptRequest.menuName() + " " + orderScriptRequest.menuCount() + "인분";
-            romanized += orderScriptRequest.menuName() + " " + orderScriptRequest.menuCount() + "inbun";
-            translatedText += "I'd like to order " + orderScriptRequest.menuCount() + " servings of "
-                    + orderScriptRequest.menuName();
+            String menuName = orderScriptRequest.menuName();
+            int menuCount = orderScriptRequest.menuCount();
+
+            switch (type) {
+                case KOREAN -> script.append(menuName)
+                        .append(" ")
+                        .append(menuCount)
+                        .append("인분");
+                case ROMANIZED -> script.append(menuName)
+                        .append(" ")
+                        .append(menuCount)
+                        .append("inbun");
+                case TRANSLATED -> script.append("I'd like to order ")
+                        .append(menuCount)
+                        .append(" servings of ")
+                        .append(menuName);
+            }
 
             if (i == orderScriptListRequest.menuOrderList().size() - 1) {
-                korean += "주문할게요.";
-                romanized += "jumunhalgeyo.";
-                translatedText += ", please.";
+                script.append(type.getSuffix());
             } else {
-                korean += "이랑 ";
-                romanized += "irang ";
-                translatedText += "and ";
+                script.append(type.getSeparator());
             }
         }
 
-        return OrderScriptResponse.of(korean, romanized, translatedText);
+        return script.toString();
     }
 }

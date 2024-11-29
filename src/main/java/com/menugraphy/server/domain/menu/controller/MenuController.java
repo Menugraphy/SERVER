@@ -58,7 +58,7 @@ public class MenuController {
         return ResponseEntity.ok(menuService.fetchMenuDetail(menuId));
     }
 
-    @GetMapping("/order")
+    @PostMapping("/order")
     public ResponseEntity<OrderScriptResponse> getOrderScript(
             @Valid @RequestBody OrderScriptListRequest menuOrderList
     ) {
