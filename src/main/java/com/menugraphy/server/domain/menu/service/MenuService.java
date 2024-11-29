@@ -7,6 +7,7 @@ import com.menugraphy.server.domain.food.repository.FoodRepository;
 import com.menugraphy.server.domain.food.repository.TypeRepository;
 import com.menugraphy.server.domain.member.model.entity.Member;
 import com.menugraphy.server.domain.member.model.enums.ScriptType;
+import com.menugraphy.server.domain.member.repository.FoodAvoidanceRepository;
 import com.menugraphy.server.domain.member.repository.MemberRepository;
 import com.menugraphy.server.domain.menu.model.dto.ImageRequest;
 import com.menugraphy.server.domain.menu.model.dto.ImageResponse;
@@ -27,8 +28,8 @@ import com.menugraphy.server.global.exception.ErrorType;
 import com.menugraphy.server.global.external.storage.StorageService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,12 +46,13 @@ public class MenuService {
 
     private final AmazonS3 amazonS3;
     private final MemberRepository memberRepository;
+    private final FoodAvoidanceRepository foodAvoidanceRepository;
     private final PrincipalHandler principalHandler;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    private final BigDecimal exchangeRate = new BigDecimal("1397");
+    private final static BigDecimal exchangeRate = new BigDecimal("1397");
     private final TypeRepository typeRepository;
 
     @Transactional
@@ -85,17 +87,14 @@ public class MenuService {
     }
 
     @Transactional(readOnly = true)
-    public MenuListResponse restructureMenuBoard(
-            Long imageId
-    ) {
+    public MenuListResponse restructureMenuBoard(Long imageId) {
+        Member member = memberRepository.findMemberByIdOrThrow(principalHandler.getUserIdFromPrincipal());
         MenuBoard menuBoard = menuBoardRepository.findMenuBoardByIdOrThrow(imageId);
 
-        final BigDecimal exchangeRate = new BigDecimal("1397");
-
         List<MenuResponse> menuResponseList = menuBoard.getMenuPriceList().stream()
-                .filter(menuPrice -> foodRepository.existsByName(menuPrice.menuName()))
+                .filter(menuPrice -> foodRepository.existsById(menuPrice.foodId()))
                 .map(menuPrice -> {
-                    Food food = foodRepository.findFoodByNameOrThrow(menuPrice.menuName());
+                    Food food = foodRepository.findFoodByIdOrThrow(menuPrice.foodId());
 
                     BigDecimal priceInWon = new BigDecimal(menuPrice.price());
                     BigDecimal priceInUsd = priceInWon.divide(exchangeRate, 2, RoundingMode.HALF_UP);
@@ -107,34 +106,40 @@ public class MenuService {
                             food.getName(),
                             food.getDescription(),
                             Integer.parseInt(menuPrice.price()),
-                            priceInUsdFormatted
+                            priceInUsdFormatted,
+                            isAvoidanceFood(member, food)
                     );
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         return MenuListResponse.of(menuResponseList);
     }
 
+    private boolean isAvoidanceFood(Member member, Food food) {
+        Set<Long> avoidanceTypeIds = food.getFoodTypeList().stream()
+                .map(typeRepository::findTypeByIdOrThrow)
+                .map(Type::getId)
+                .collect(Collectors.toSet());
+
+        return avoidanceTypeIds.stream()
+                .anyMatch(typeId -> foodAvoidanceRepository.existsByMemberIdAndTypeId(member.getId(), typeId));
+    }
+
     @Transactional(readOnly = true)
-    public MenuDetailResponse fetchMenuDetail(
-            Long menuId
-    ) {
+    public MenuDetailResponse fetchMenuDetail(Long menuId) {
         Food food = foodRepository.findFoodByIdOrThrow(menuId);
-        List<TypeName> foodTypeList = new ArrayList<>();
-        List<SimilarFood> similarFoodList = new ArrayList<>();
 
-        for (int i = 0; i < food.getFoodTypeList().size(); i++) {
-            Type type = typeRepository.findTypeByOrThrow(food.getFoodTypeList().get(i));
-            TypeName typeName = TypeName.of(type.getName());
-            foodTypeList.add(typeName);
-        }
+        List<TypeName> foodTypeList = food.getFoodTypeList().stream()
+                .map(typeRepository::findTypeByIdOrThrow)
+                .map(type -> TypeName.of(type.getName()))
+                .toList();
 
-        for (int i = 0; i < food.getSimilarFoodList().size(); i++) {
-            Food similarFood = foodRepository.findFoodByIdOrThrow(food.getSimilarFoodList().get(i));
-            SimilarFood sf = SimilarFood.of(similarFood.getImage(), similarFood.getName());
-            similarFoodList.add(sf);
-        }
+        List<SimilarFood> similarFoodList = food.getSimilarFoodList().stream()
+                .map(foodRepository::findFoodByIdOrThrow)
+                .map(similarFood -> SimilarFood.of(similarFood.getImage(), similarFood.getName()))
+                .toList();
 
+        // Response 생성 및 반환
         return MenuDetailResponse.of(
                 food.getId(),
                 food.getImage(),

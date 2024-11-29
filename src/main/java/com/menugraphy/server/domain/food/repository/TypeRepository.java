@@ -13,7 +13,7 @@ public interface TypeRepository extends JpaRepository<Type, Long> {
 
     Optional<Type> findTypeById(Long typeId);
 
-    default Type findTypeByOrThrow(Long typeId) {
+    default Type findTypeByIdOrThrow(Long typeId) {
         return findTypeById(typeId)
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_FOUND_MEMBER_ERROR));
     }
