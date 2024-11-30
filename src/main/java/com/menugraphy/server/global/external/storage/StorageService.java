@@ -6,13 +6,14 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.menugraphy.server.domain.member.model.entity.Member;
 import com.menugraphy.server.domain.member.repository.MemberRepository;
-import com.menugraphy.server.domain.menu.model.vo.MenuBoardImage;
+import com.menugraphy.server.domain.menu.model.vo.ImageNameExtension;
 import com.menugraphy.server.global.auth.PrincipalHandler;
 import com.menugraphy.server.global.exception.CustomException;
 import com.menugraphy.server.global.exception.ErrorType;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class StorageService {
 
     private static final List<String> ALLOWED_FILE_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "heic");
 
-    public MenuBoardImage uploadFile(MultipartFile file) {
+    public ImageNameExtension uploadFile(MultipartFile file) {
         Member member = memberRepository.findMemberByIdOrThrow(principalHandler.getUserIdFromPrincipal());
 
         // 파일 확장자 체크
@@ -40,7 +41,7 @@ public class StorageService {
             throw new IllegalArgumentException("허용되지 않는 파일 형식입니다. 허용되는 형식: jpg, jpeg, png, heic");
         }
 
-        fileName = member.getId() + "-" + fileName;
+        fileName = UUID.randomUUID() + "-" + member.getId() + "-" + fileName;
 
         // 메타데이터 설정
         ObjectMetadata metadata = new ObjectMetadata();
@@ -58,11 +59,11 @@ public class StorageService {
             throw new CustomException(ErrorType.S3_UPLOAD_ERROR);
         }
 
-        String beforeUrl = amazonS3.getUrl(bucketName, key).toString();
-        String afterUrl = amazonS3.getUrl(bucketName, "OCR_after/" + fileName).toString();
-
-        // 업로드된 파일의 URL 반환
-        return MenuBoardImage.of(beforeUrl, afterUrl);
+        return ImageNameExtension.of(
+                extractFileNameWithoutExtension(fileName),
+                getFileExtension(fileName),
+                amazonS3.getUrl(bucketName, key).toString()
+        );
     }
 
     private boolean isAllowedExtension(String fileName) {
@@ -76,5 +77,11 @@ public class StorageService {
             return "";
         }
         return fileName.substring(lastDotIndex + 1);
+    }
+
+    public String extractFileNameWithoutExtension(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf(".");
+
+        return fileName.substring(0, lastDotIndex);
     }
 }

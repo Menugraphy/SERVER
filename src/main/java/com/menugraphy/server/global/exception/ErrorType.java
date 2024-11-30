@@ -24,6 +24,8 @@ public enum ErrorType {
 
     UN_LOGIN_ERROR(HttpStatus.UNAUTHORIZED, "40101", "로그인 후 진행해주세요."),
 
+    VALIDATION_ERROR(HttpStatus.UNPROCESSABLE_ENTITY, "42201", "Validation 오류가 발생했습니다."),
+
     NOT_FOUND_MEMBER_ERROR(HttpStatus.NOT_FOUND, "40401", "존재하지 않는 회원입니다."),
     NOT_FOUND_MENUBOARD_ERROR(HttpStatus.NOT_FOUND, "40402", "존재하지 않는 메뉴판입니다."),
     NOT_FOUND_FOOD_NAME_ERROR(HttpStatus.NOT_FOUND, "40403", "존재하지 않는 음식명입니다."),
@@ -33,6 +35,7 @@ public enum ErrorType {
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "50001", "예상치 못한 서버 오류가 발생했습니다."),
     FAILED_DOWNLOAD_GOOGLE_PUBLIC_KEY_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "50002", "구글 공개키 다운로드에 실패하였습니다."),
+    INTERNAL_FEIGN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "50003", "FEIGN 에러가 발생했습니다."),
 
     ;
 

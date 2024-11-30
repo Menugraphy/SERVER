@@ -33,15 +33,6 @@ public class MenuController {
         return ResponseEntity.ok(menuService.uploadImage(imageRequest));
     }
 
-    @PostMapping("/image-upload")
-    public ResponseEntity<Void> uploadImageForTest(
-            @Valid @ModelAttribute ImageRequest imageRequest
-    ) {
-        menuService.saveMenuBoard(imageRequest);
-
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/image/{imageId}")
     public ResponseEntity<MenuListResponse> getRestructureMenuBoard(
             @Positive(message = "이미지 Id는 양수여야 합니다.")
