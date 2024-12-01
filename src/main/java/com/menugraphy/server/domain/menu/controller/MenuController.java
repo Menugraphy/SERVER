@@ -61,4 +61,12 @@ public class MenuController {
     public ResponseEntity<OrderHistoryListResponse> getOrderHistories() {
         return ResponseEntity.ok(menuService.fetchOrderHistories());
     }
+
+    @GetMapping("/menu-board/{menuBoardId}")
+    public ResponseEntity<MenuListResponse> getRestructureMenuBoardInMyPage(
+            @Positive(message = "메뉴판 Id는 양수여야 합니다.")
+            @PathVariable final Long menuBoardId
+    ) {
+        return ResponseEntity.ok(menuService.restructureMenuBoard(menuBoardId));
+    }
 }
