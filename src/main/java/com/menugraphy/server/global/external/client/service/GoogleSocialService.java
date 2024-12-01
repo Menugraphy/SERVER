@@ -11,7 +11,7 @@ import com.menugraphy.server.global.external.client.dto.MemberInfoResponse;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,8 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class GoogleSocialService {
 
-    @Value("${google.clientId}")
-    private String clientId;
+    @Value("${google.serverClientId}")
+    private String serverClientId;
+
+    @Value("${google.iOSClientId}")
+    private String iOSClientId;
+
+    @Value("${google.androidClientId}")
+    private String androidClientId;
 
     private final NetHttpTransport transport = new NetHttpTransport();
     private final GsonFactory jsonFactory = GsonFactory.getDefaultInstance();
@@ -33,7 +39,7 @@ public class GoogleSocialService {
     @PostConstruct
     public void initVerifier() {
         verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
-                .setAudience(Collections.singletonList(clientId))
+                .setAudience(Arrays.asList(serverClientId, iOSClientId, androidClientId))
                 .build();
     }
 
@@ -45,6 +51,7 @@ public class GoogleSocialService {
         GoogleIdToken idToken = verifyIdToken(idTokenString);
 
         if (idToken == null) {
+            log.error("ID Token이 없습니다.");
             throw new CustomException(ErrorType.INVALID_ID_TOKEN_ERROR);
         }
 
@@ -58,6 +65,7 @@ public class GoogleSocialService {
         try {
             return verifier.verify(idTokenString);
         } catch (GeneralSecurityException e) {
+            System.out.println("ID Token이 유효하지 않습니다.");
             throw new CustomException(ErrorType.INVALID_ID_TOKEN_ERROR);
         } catch (IOException e) {
             throw new CustomException(ErrorType.FAILED_DOWNLOAD_GOOGLE_PUBLIC_KEY_ERROR);
