@@ -58,8 +58,8 @@ public class StorageService {
         Double longitude = null;
 
         // 이미지 파일에서 GPS 정보 추출
-        try (InputStream ignored = file.getInputStream()) {
-            Metadata imageMetadata = ImageMetadataReader.readMetadata(file.getInputStream());
+        try (InputStream inputStream = file.getInputStream()) {
+            Metadata imageMetadata = ImageMetadataReader.readMetadata(inputStream);
             GpsDirectory gpsDirectory = imageMetadata.getFirstDirectoryOfType(GpsDirectory.class);
 
             if (gpsDirectory != null && gpsDirectory.getGeoLocation() != null) {
