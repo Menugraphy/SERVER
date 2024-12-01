@@ -1,14 +1,17 @@
 package com.menugraphy.server.domain.member.service;
 
 import com.menugraphy.server.domain.food.repository.CategoryRepository;
+import com.menugraphy.server.domain.food.repository.FoodRepository;
 import com.menugraphy.server.domain.food.repository.TypeRepository;
 import com.menugraphy.server.domain.member.model.dto.AvoidanceListRequest;
 import com.menugraphy.server.domain.member.model.dto.AvoidedTypeRequest;
 import com.menugraphy.server.domain.member.model.dto.LoginResponse;
 import com.menugraphy.server.domain.member.model.entity.FoodAvoidance;
 import com.menugraphy.server.domain.member.model.entity.Member;
+import com.menugraphy.server.domain.member.model.entity.MemberLike;
 import com.menugraphy.server.domain.member.model.enums.SocialType;
 import com.menugraphy.server.domain.member.repository.FoodAvoidanceRepository;
+import com.menugraphy.server.domain.member.repository.MemberLikeRepository;
 import com.menugraphy.server.domain.member.repository.MemberRepository;
 import com.menugraphy.server.global.auth.MemberAuthentication;
 import com.menugraphy.server.global.auth.PrincipalHandler;
@@ -31,6 +34,8 @@ public class MemberService {
     private final TypeRepository typeRepository;
     private final MemberRepository memberRepository;
     private final FoodAvoidanceRepository foodAvoidanceRepository;
+    private final MemberLikeRepository memberLikeRepository;
+    private final FoodRepository foodRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PrincipalHandler principalHandler;
     private final GoogleSocialService googleSocialService;
@@ -123,5 +128,36 @@ public class MemberService {
                 throw new CustomException(ErrorType.NOT_FOUND_TYPE_ERROR);
             }
         }
+    }
+
+    @Transactional
+    public void createLike(final Long foodId) {
+        if (!foodRepository.existsById(foodId)) {
+            throw new CustomException(ErrorType.NOT_FOUND_FOOD_ID_ERROR);
+        }
+
+        Member member = memberRepository.findMemberByIdOrThrow(principalHandler.getUserIdFromPrincipal());
+
+        if (memberLikeRepository.existsByMemberIdAndFoodId(member.getId(), foodId)) {
+            throw new CustomException(ErrorType.ALREADY_LIKED_FOOD_ERROR);
+        }
+
+        MemberLike memberLike = MemberLike.builder()
+                .memberId(member.getId())
+                .foodId(foodId)
+                .build();
+
+        memberLikeRepository.save(memberLike);
+    }
+
+    @Transactional
+    public void removeLike(final Long foodId) {
+        if (!foodRepository.existsById(foodId)) {
+            throw new CustomException(ErrorType.NOT_FOUND_FOOD_ID_ERROR);
+        }
+
+        Member member = memberRepository.findMemberByIdOrThrow(principalHandler.getUserIdFromPrincipal());
+
+        memberLikeRepository.deleteByMemberIdAndFoodId(member.getId(), foodId);
     }
 }

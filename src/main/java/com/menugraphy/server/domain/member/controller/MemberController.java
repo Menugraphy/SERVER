@@ -7,8 +7,12 @@ import com.menugraphy.server.domain.member.model.enums.SocialType;
 import com.menugraphy.server.domain.member.service.MemberService;
 import com.menugraphy.server.global.external.client.dto.MemberInfoResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,6 +48,26 @@ public class MemberController {
             @Valid @RequestBody AvoidanceListRequest avoidanceList
     ) {
         memberService.saveAvoidedTypes(avoidanceList);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("likes/{foodId}")
+    public ResponseEntity<Void> postLike(
+            @Positive(message = "음식 Id는 양수여야 합니다.")
+            @Validated @PathVariable Long foodId
+    ) {
+        memberService.createLike(foodId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("likes/{foodId}")
+    public ResponseEntity<Void> deleteLike(
+            @Positive(message = "음식 Id는 양수여야 합니다.")
+            @Validated @PathVariable Long foodId
+    ) {
+        memberService.removeLike(foodId);
 
         return ResponseEntity.ok().build();
     }

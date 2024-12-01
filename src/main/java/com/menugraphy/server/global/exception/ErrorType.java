@@ -21,6 +21,7 @@ public enum ErrorType {
     EMPTY_PRINCIPAL_ERROR(HttpStatus.BAD_REQUEST, "40010", "Principal 객체가 없습니다. (null)"),
     INVALID_ID_TOKEN_ERROR(HttpStatus.BAD_REQUEST, "40011", "ID 토큰의 서명이 올바르지 않습니다."),
     S3_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "40012", "S3 이미지 업로드에 실패했습니다."),
+    ALREADY_LIKED_FOOD_ERROR(HttpStatus.BAD_REQUEST, "40013", "이미 좋아요를 누른 음식입니다."),
 
     UN_LOGIN_ERROR(HttpStatus.UNAUTHORIZED, "40101", "로그인 후 진행해주세요."),
 
@@ -28,7 +29,6 @@ public enum ErrorType {
 
     NOT_FOUND_MEMBER_ERROR(HttpStatus.NOT_FOUND, "40401", "존재하지 않는 회원입니다."),
     NOT_FOUND_MENUBOARD_ERROR(HttpStatus.NOT_FOUND, "40402", "존재하지 않는 메뉴판입니다."),
-    NOT_FOUND_FOOD_NAME_ERROR(HttpStatus.NOT_FOUND, "40403", "존재하지 않는 음식명입니다."),
     NOT_FOUND_FOOD_ID_ERROR(HttpStatus.NOT_FOUND, "40404", "존재하지 않는 음식 ID입니다."),
     NOT_FOUND_CATEGORY_ERROR(HttpStatus.NOT_FOUND, "40405", "존재하지 않는 카테고리입니다."),
     NOT_FOUND_TYPE_ERROR(HttpStatus.NOT_FOUND, "40406", "존재하지 않는 타입입니다."),
