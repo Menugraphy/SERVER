@@ -22,6 +22,7 @@ public enum ErrorType {
     INVALID_ID_TOKEN_ERROR(HttpStatus.BAD_REQUEST, "40011", "ID 토큰의 서명이 올바르지 않습니다."),
     S3_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "40012", "S3 이미지 업로드에 실패했습니다."),
     ALREADY_LIKED_FOOD_ERROR(HttpStatus.BAD_REQUEST, "40013", "이미 좋아요를 누른 음식입니다."),
+    INVALID_MENU_ID_ERROR(HttpStatus.BAD_REQUEST, "40014", "잘못된 메뉴 ID입니다."),
 
     UN_LOGIN_ERROR(HttpStatus.UNAUTHORIZED, "40101", "로그인 후 진행해주세요."),
 

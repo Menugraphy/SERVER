@@ -38,9 +38,11 @@ import com.menugraphy.server.global.external.nominatim.ReverseGeocodingService;
 import com.menugraphy.server.global.external.storage.StorageService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -185,6 +187,13 @@ public class MenuService {
         String title;
         String restaurantAddress = "";
 
+        orderScriptListRequest.menuOrderList().forEach(orderScriptRequest -> {
+            if (menuBoard.getMenuPriceList().stream()
+                    .noneMatch(menuPrice -> menuPrice.foodId().equals(orderScriptRequest.menuId()))) {
+                throw new CustomException(ErrorType.INVALID_MENU_ID_ERROR);
+            }
+        });
+
         Optional<OrderScriptRequest> mostOrderedMenu = orderScriptListRequest.menuOrderList().stream()
                 .max(Comparator.comparingInt(OrderScriptRequest::menuCount));
 
@@ -277,6 +286,8 @@ public class MenuService {
         List<OrderHistory> orderHistoryList = orderHistoryRepository.findAllByMemberId(member.getId());
         List<OrderHistoryResponse> orderHistoryResponseList = new ArrayList<>();
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd a hh:mm", Locale.ENGLISH);
+
         for (OrderHistory orderHistory : orderHistoryList) {
             List<MenuOrderHistory> menuOrderHistoryList = new ArrayList<>();
 
@@ -285,13 +296,15 @@ public class MenuService {
                 menuOrderHistoryList.add(MenuOrderHistory.of(food.getImage(), food.getName(), menuOrder.menuCount()));
             }
 
+            String formattedDate = orderHistory.getCreatedAt().format(formatter);
+
             BigDecimal priceInWon = new BigDecimal(orderHistory.getTotalAmount());
             BigDecimal priceInUsd = priceInWon.divide(exchangeRate, 2, RoundingMode.HALF_UP);
             String priceInUsdFormatted = priceInUsd + " USD";
 
             OrderHistoryResponse orderHistoryResponse = OrderHistoryResponse.of(
                     orderHistory.getTitle(),
-                    orderHistory.getCreatedAt().toString(),
+                    formattedDate,
                     orderHistory.getTotalAmount(),
                     priceInUsdFormatted,
                     menuOrderHistoryList
