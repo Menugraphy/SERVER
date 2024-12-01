@@ -119,7 +119,7 @@ public class MemberService {
             if (!categoryRepository.existsById(avoidedTypeRequest.categoryId())) {
                 throw new CustomException(ErrorType.NOT_FOUND_CATEGORY_ERROR);
             }
-            if (!typeRepository.existsById(avoidedTypeRequest.typeId())) {
+            if (!typeRepository.existsByCategoryIdAndId(avoidedTypeRequest.categoryId(), avoidedTypeRequest.typeId())) {
                 throw new CustomException(ErrorType.NOT_FOUND_TYPE_ERROR);
             }
         }
