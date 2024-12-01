@@ -4,6 +4,7 @@ import com.menugraphy.server.domain.menu.model.dto.ImageRequest;
 import com.menugraphy.server.domain.menu.model.dto.ImageResponse;
 import com.menugraphy.server.domain.menu.model.dto.MenuDetailResponse;
 import com.menugraphy.server.domain.menu.model.dto.MenuListResponse;
+import com.menugraphy.server.domain.menu.model.dto.OrderHistoryListResponse;
 import com.menugraphy.server.domain.menu.model.dto.OrderScriptListRequest;
 import com.menugraphy.server.domain.menu.model.dto.OrderScriptResponse;
 import com.menugraphy.server.domain.menu.service.MenuService;
@@ -54,5 +55,10 @@ public class MenuController {
             @Valid @RequestBody OrderScriptListRequest menuOrderList
     ) {
         return ResponseEntity.ok(menuService.fetchOrderScript(menuOrderList));
+    }
+
+    @GetMapping("/order-histories")
+    public ResponseEntity<OrderHistoryListResponse> getOrderHistories() {
+        return ResponseEntity.ok(menuService.fetchOrderHistories());
     }
 }

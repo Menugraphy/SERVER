@@ -4,6 +4,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.GpsDirectory;
 import com.menugraphy.server.domain.member.model.entity.Member;
 import com.menugraphy.server.domain.member.repository.MemberRepository;
 import com.menugraphy.server.domain.menu.model.vo.ImageNameExtension;
@@ -11,16 +14,19 @@ import com.menugraphy.server.global.auth.PrincipalHandler;
 import com.menugraphy.server.global.exception.CustomException;
 import com.menugraphy.server.global.exception.ErrorType;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StorageService {
 
     private final AmazonS3 amazonS3;
@@ -48,6 +54,25 @@ public class StorageService {
         metadata.setContentLength(file.getSize());
         metadata.setContentType(file.getContentType());
 
+        Double latitude = null;
+        Double longitude = null;
+
+        // 이미지 파일에서 GPS 정보 추출
+        try (InputStream ignored = file.getInputStream()) {
+            Metadata imageMetadata = ImageMetadataReader.readMetadata(file.getInputStream());
+            GpsDirectory gpsDirectory = imageMetadata.getFirstDirectoryOfType(GpsDirectory.class);
+
+            if (gpsDirectory != null && gpsDirectory.getGeoLocation() != null) {
+                latitude = gpsDirectory.getGeoLocation().getLatitude();
+                longitude = gpsDirectory.getGeoLocation().getLongitude();
+                // 위도 경도 값을 메타데이터에 추가
+                metadata.addUserMetadata("latitude", String.valueOf(latitude));
+                metadata.addUserMetadata("longitude", String.valueOf(longitude));
+            }
+        } catch (Exception e) {
+            log.warn("이미지 파일에서 GPS 정보를 추출하는데 실패했습니다. 파일: {}", fileName);
+        }
+
         // S3에 파일 업로드
         String key = "OCR_before/" + fileName;
 
@@ -62,7 +87,9 @@ public class StorageService {
         return ImageNameExtension.of(
                 extractFileNameWithoutExtension(fileName),
                 getFileExtension(fileName),
-                amazonS3.getUrl(bucketName, key).toString()
+                amazonS3.getUrl(bucketName, key).toString(),
+                latitude,
+                longitude
         );
     }
 

@@ -36,7 +36,7 @@ public class Food extends BaseTimeEntity {
 //    @Column(name = "likes")
 //    private int likes;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "description")

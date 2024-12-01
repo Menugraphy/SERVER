@@ -1,4 +1,4 @@
-package com.menugraphy.server.domain.menu.model;
+package com.menugraphy.server.domain.menu.model.mapper;
 
 import com.menugraphy.server.domain.menu.model.vo.MenuPrice;
 import com.menugraphy.server.global.external.ai.dto.MenuResultResponse;

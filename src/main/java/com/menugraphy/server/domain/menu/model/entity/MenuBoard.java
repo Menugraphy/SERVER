@@ -33,6 +33,12 @@ public class MenuBoard extends BaseTimeEntity {
     @Column(name = "after_image", unique = true)
     private String afterImage;
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "menu_price_list", columnDefinition = "jsonb")
     private List<MenuPrice> menuPriceList;
@@ -41,10 +47,14 @@ public class MenuBoard extends BaseTimeEntity {
     private MenuBoard(
             final String beforeImage,
             final String afterImage,
-            final List<MenuPrice> menuPriceList
+            final List<MenuPrice> menuPriceList,
+            final Double latitude,
+            final Double longitude
     ) {
         this.beforeImage = beforeImage;
         this.afterImage = afterImage;
         this.menuPriceList = menuPriceList;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 }

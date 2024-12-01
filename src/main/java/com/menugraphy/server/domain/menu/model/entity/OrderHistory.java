@@ -30,8 +30,8 @@ public class OrderHistory extends BaseTimeEntity {
     @Column(name = "member_id", nullable = false)
     private long memberId;
 
-    @Column(name = "menu_id", nullable = false)
-    private long menuId;
+    @Column(name = "menu_board_id", nullable = false)
+    private long menuBoardId;
 
     @Column(name = "title")
     private String title;
@@ -49,14 +49,14 @@ public class OrderHistory extends BaseTimeEntity {
     @Builder
     private OrderHistory(
             final long memberId,
-            final long menuId,
+            final long menuBoardId,
             final String title,
             final String restaurantAddress,
             final List<MenuOrder> menuOrderList,
             final int totalAmount
     ) {
         this.memberId = memberId;
-        this.menuId = menuId;
+        this.menuBoardId = menuBoardId;
         this.title = title;
         this.restaurantAddress = restaurantAddress;
         this.menuOrderList = menuOrderList;
