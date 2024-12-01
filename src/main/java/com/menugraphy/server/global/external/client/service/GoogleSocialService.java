@@ -38,6 +38,13 @@ public class GoogleSocialService {
 
     @PostConstruct
     public void initVerifier() {
+        if (serverClientId == null || iOSClientId == null || androidClientId == null) {
+            log.error(
+                    "One or more Google client IDs are not properly configured.\n"
+                            + "ServerClientId: {}, iOSClientId: {}, AndroidClientId: {}",
+                    serverClientId, iOSClientId, androidClientId);
+            throw new CustomException(ErrorType.VALIDATION_ERROR);
+        }
         verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
                 .setAudience(Arrays.asList(serverClientId, iOSClientId, androidClientId))
                 .build();
@@ -48,26 +55,42 @@ public class GoogleSocialService {
             final SocialType socialType,
             final String idTokenString
     ) {
+        if (idTokenString == null || idTokenString.isEmpty()) {
+            log.error("ID Token이 비어 있습니다.");
+            throw new CustomException(ErrorType.INVALID_ID_TOKEN_ERROR);
+        }
+
         GoogleIdToken idToken = verifyIdToken(idTokenString);
 
         if (idToken == null) {
-            log.error("ID Token이 없습니다.");
+            log.error("ID Token이 검증되지 않았습니다. 토큰 문자열: {}", idTokenString);
             throw new CustomException(ErrorType.INVALID_ID_TOKEN_ERROR);
         }
 
         GoogleIdToken.Payload payload = idToken.getPayload();
         String userId = payload.getSubject();
 
+        if (userId == null || userId.isEmpty()) {
+            log.error("ID Token에서 사용자 ID를 찾을 수 없습니다. Payload: {}", payload);
+            throw new CustomException(ErrorType.INVALID_ID_TOKEN_ERROR);
+        }
+
+        log.info("Google 로그인 성공. 사용자 ID: {}, 이메일: {}", userId, payload.getEmail());
         return MemberInfoResponse.of(socialType, userId);
     }
 
     private GoogleIdToken verifyIdToken(final String idTokenString) {
         try {
-            return verifier.verify(idTokenString);
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken == null) {
+                log.warn("Google ID Token 검증 실패: 토큰이 유효하지 않거나 만료되었습니다.");
+            }
+            return idToken;
         } catch (GeneralSecurityException e) {
-            System.out.println("ID Token이 유효하지 않습니다.");
+            log.error("ID Token 검증 중 보안 예외 발생. 토큰: {}. 에러: {}", idTokenString, e.getMessage(), e);
             throw new CustomException(ErrorType.INVALID_ID_TOKEN_ERROR);
         } catch (IOException e) {
+            log.error("Google Public Key 다운로드 실패. 네트워크 문제일 수 있습니다. 에러: {}", e.getMessage(), e);
             throw new CustomException(ErrorType.FAILED_DOWNLOAD_GOOGLE_PUBLIC_KEY_ERROR);
         }
     }
