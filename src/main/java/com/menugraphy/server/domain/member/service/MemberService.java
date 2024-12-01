@@ -1,15 +1,20 @@
 package com.menugraphy.server.domain.member.service;
 
+import com.menugraphy.server.domain.food.model.entity.Food;
+import com.menugraphy.server.domain.food.model.entity.Type;
 import com.menugraphy.server.domain.food.repository.CategoryRepository;
 import com.menugraphy.server.domain.food.repository.FoodRepository;
 import com.menugraphy.server.domain.food.repository.TypeRepository;
 import com.menugraphy.server.domain.member.model.dto.AvoidanceListRequest;
 import com.menugraphy.server.domain.member.model.dto.AvoidedTypeRequest;
+import com.menugraphy.server.domain.member.model.dto.LikedFoodListResponse;
+import com.menugraphy.server.domain.member.model.dto.LikedFoodResponse;
 import com.menugraphy.server.domain.member.model.dto.LoginResponse;
 import com.menugraphy.server.domain.member.model.entity.FoodAvoidance;
 import com.menugraphy.server.domain.member.model.entity.Member;
 import com.menugraphy.server.domain.member.model.entity.MemberLike;
 import com.menugraphy.server.domain.member.model.enums.SocialType;
+import com.menugraphy.server.domain.member.model.vo.FoodTypeName;
 import com.menugraphy.server.domain.member.repository.FoodAvoidanceRepository;
 import com.menugraphy.server.domain.member.repository.MemberLikeRepository;
 import com.menugraphy.server.domain.member.repository.MemberRepository;
@@ -20,6 +25,7 @@ import com.menugraphy.server.global.exception.CustomException;
 import com.menugraphy.server.global.exception.ErrorType;
 import com.menugraphy.server.global.external.client.dto.MemberInfoResponse;
 import com.menugraphy.server.global.external.client.service.GoogleSocialService;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -159,5 +165,43 @@ public class MemberService {
         Member member = memberRepository.findMemberByIdOrThrow(principalHandler.getUserIdFromPrincipal());
 
         memberLikeRepository.deleteByMemberIdAndFoodId(member.getId(), foodId);
+    }
+
+    @Transactional
+    public LikedFoodListResponse fetchLikes() {
+        Member member = memberRepository.findMemberByIdOrThrow(principalHandler.getUserIdFromPrincipal());
+        List<MemberLike> memberLikeList = memberLikeRepository.findAllByMemberId(member.getId());
+        List<LikedFoodResponse> likedFoodResponseList = new ArrayList<>();
+
+        for (MemberLike memberLike : memberLikeList) {
+            if (!foodRepository.existsById(memberLike.getFoodId())) {
+                throw new CustomException(ErrorType.NOT_FOUND_FOOD_ID_ERROR);
+            }
+
+            Food food = foodRepository.findFoodByIdOrThrow(memberLike.getFoodId());
+            List<Long> foodTypelist = food.getFoodTypeList();
+            List<FoodTypeName> typeNameList = new ArrayList<>();
+
+            for (Long foodType : foodTypelist) {
+                if (!typeRepository.existsById(foodType)) {
+                    throw new CustomException(ErrorType.NOT_FOUND_TYPE_ERROR);
+                }
+
+                Type type = typeRepository.findTypeByIdOrThrow(foodType);
+
+                typeNameList.add(FoodTypeName.of(type.getName()));
+            }
+
+            LikedFoodResponse likedFoodResponse = LikedFoodResponse.of(
+                    memberLike.getFoodId(),
+                    food.getImage(),
+                    food.getName(),
+                    typeNameList
+            );
+
+            likedFoodResponseList.add(likedFoodResponse);
+        }
+
+        return LikedFoodListResponse.of(likedFoodResponseList);
     }
 }

@@ -1,6 +1,7 @@
 package com.menugraphy.server.domain.member.controller;
 
 import com.menugraphy.server.domain.member.model.dto.AvoidanceListRequest;
+import com.menugraphy.server.domain.member.model.dto.LikedFoodListResponse;
 import com.menugraphy.server.domain.member.model.dto.LoginRequest;
 import com.menugraphy.server.domain.member.model.dto.LoginResponse;
 import com.menugraphy.server.domain.member.model.enums.SocialType;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,7 +54,7 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("likes/{foodId}")
+    @PostMapping("/likes/{foodId}")
     public ResponseEntity<Void> postLike(
             @Positive(message = "음식 Id는 양수여야 합니다.")
             @Validated @PathVariable Long foodId
@@ -62,7 +64,7 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("likes/{foodId}")
+    @DeleteMapping("/likes/{foodId}")
     public ResponseEntity<Void> deleteLike(
             @Positive(message = "음식 Id는 양수여야 합니다.")
             @Validated @PathVariable Long foodId
@@ -70,5 +72,10 @@ public class MemberController {
         memberService.removeLike(foodId);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/likes")
+    public ResponseEntity<LikedFoodListResponse> getLikes() {
+        return ResponseEntity.ok(memberService.fetchLikes());
     }
 }
