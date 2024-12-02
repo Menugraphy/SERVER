@@ -303,6 +303,7 @@ public class MenuService {
             String priceInUsdFormatted = priceInUsd + " USD";
 
             OrderHistoryResponse orderHistoryResponse = OrderHistoryResponse.of(
+                    orderHistory.getMenuBoardId(),
                     orderHistory.getTitle(),
                     formattedDate,
                     orderHistory.getTotalAmount(),
