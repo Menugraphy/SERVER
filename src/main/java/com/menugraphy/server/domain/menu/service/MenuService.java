@@ -166,7 +166,7 @@ public class MenuService {
 
         List<SimilarFood> similarFoodList = food.getSimilarFoodList().stream()
                 .map(foodRepository::findFoodByIdOrThrow)
-                .map(similarFood -> SimilarFood.of(similarFood.getImage(), similarFood.getName()))
+                .map(similarFood -> SimilarFood.of(similarFood.getId(), similarFood.getImage(), similarFood.getName()))
                 .toList();
 
         // Response 생성 및 반환
